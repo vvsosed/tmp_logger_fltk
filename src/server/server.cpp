@@ -3,6 +3,9 @@
 #include <string>
 #include <array>
 #include <memory>
+#include <queue>
+#include <mutex>
+#include <chrono>
 #include <boost/asio.hpp>
 
 using boost::asio::ip::udp;
@@ -12,6 +15,10 @@ namespace {
 
 	const auto PORT = 3333;
 	const auto RECV_BUFSIZE = 1024;
+
+	using PromiseType = std::promise<std::string>; 
+	std::queue<PromiseType> g_promices;
+	std::mutex g_mutex;
 } // private namespace
 
 std::string make_daytime_string()
@@ -39,6 +46,14 @@ private:
 			{
 				std::string msg(m_recv_buffer.begin(), m_recv_buffer.begin() + bytes_recvd);
 				std::cout << "received: " << msg << std::endl;
+				{
+					const std::lock_guard<std::mutex> lock(g_mutex);
+					if (!g_promices.empty())
+					{
+						g_promices.front().set_value(msg);
+						g_promices.pop();
+					}
+				}
 				do_send(bytes_recvd);
 			}
 			else
@@ -74,10 +89,22 @@ void run_server( volatile bool& isRun )
 		//io_context.run();
 		while ( isRun ) {
 			io_context.run_one();
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
 	catch (std::exception & e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
+}
+
+
+std::future<std::string> getTimeString() {
+	PromiseType promice;
+	auto future = promice.get_future();
+	{
+		const std::lock_guard<std::mutex> lock(g_mutex);
+		g_promices.push(std::move(promice));
+	}
+	return std::move(future);
 }
