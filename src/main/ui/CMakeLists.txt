@@ -1,6 +1,6 @@
 fltk_wrap_ui(MainUi main.fl)
 
-add_library(MainUi ${MainUi_FLTK_UI_SRCS})
+add_library(MainUi STATIC ${MainUi_FLTK_UI_SRCS})
 
 target_link_libraries(MainUi fltk ${FLTK_LIBRARIES} ${OPENGL_LIBRARIES})
 
