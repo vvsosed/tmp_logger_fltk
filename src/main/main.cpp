@@ -32,7 +32,7 @@ int main(int argc, char**argv) {
 		//Fl::lock();
 		window->show(argc, argv);
 
-		bool isRun;
+		bool isRun = true;
 
 		std::thread serverThread([&isRun]() { run_server(isRun); });
 		IdleContext idleCtx;
