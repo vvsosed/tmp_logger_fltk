@@ -6,14 +6,20 @@
 #include <iostream>
 #include <chrono>
 
-void idleClbk(std::future<std::string> *future ) {
-	auto& timeFuture = *future;
+struct IdleContext {
+	std::future<std::string> timeFuture;
+	Fl_Group* infoLabel;
+};
+
+void idleClbk(IdleContext* context ) {
+	auto& timeFuture = context->timeFuture;
 	if (timeFuture.valid())
 	{
 		auto status = timeFuture.wait_for(std::chrono::milliseconds(1));
 		if (status == std::future_status::ready) {
 			auto msg = timeFuture.get();
 			std::cout << "main: " << msg << std::endl;
+			context->infoLabel->copy_label(msg.c_str());
 			timeFuture = getTimeString();
 		}
 	}
@@ -29,8 +35,10 @@ int main(int argc, char**argv) {
 		bool isRun;
 
 		std::thread serverThread([&isRun]() { run_server(isRun); });
-		auto timeFuture = getTimeString();
-		Fl::add_idle(reinterpret_cast<Fl_Idle_Handler>(idleClbk), &timeFuture);
+		IdleContext idleCtx;
+		idleCtx.infoLabel = infoLabel;
+		idleCtx.timeFuture = getTimeString();
+		Fl::add_idle(reinterpret_cast<Fl_Idle_Handler>(idleClbk), &idleCtx);
 		
 		int res = Fl::run();
 		isRun = false;

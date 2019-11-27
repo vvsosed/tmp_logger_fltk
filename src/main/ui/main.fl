@@ -5,11 +5,11 @@ code_name {.cxx}
 Function {make_window()} {open
 } {
   Fl_Window {} {
-    label {This is simple window} open selected
-    xywh {124 244 461 216} type Single box UP_BOX align 0 resizable visible
+    label {This is simple window} open
+    xywh {316 308 461 216} type Single box UP_BOX align 0 resizable visible
   } {
-    Fl_Group {} {
-      label {This is simple text} open
+    Fl_Group infoLabel {
+      label {This is simple text} open selected
       xywh {15 15 430 185} box PLASTIC_UP_BOX labelfont 4 labelsize 25 align 0 resizable
     } {}
   }
