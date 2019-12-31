@@ -1,0 +1,19 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+header_name {.h}
+code_name {.cxx}
+decl {\#include <string>} {selected public global
+}
+
+widget_class MainWindow {open
+  xywh {271 353 486 159} type Double resizable
+  class Fl_Double_Window visible
+} {
+  Function {setLabel(const std::string &lbl)} {} {
+    code {m_label->copy_label(lbl.c_str());} {}
+  }
+  Fl_Group m_label {
+    label Temperature
+    private xywh {10 10 465 135} align 0 resizable
+  } {}
+}

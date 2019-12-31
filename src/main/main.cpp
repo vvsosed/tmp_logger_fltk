@@ -1,4 +1,4 @@
-#include "main.h"
+#include "main_window.h"
 #include "server.h"
 
 #include <thread>
@@ -8,7 +8,7 @@
 
 struct IdleContext {
 	std::future<std::string> timeFuture;
-	Fl_Group* infoLabel;
+	MainWindow *window;
 };
 
 void idleClbk(IdleContext* context ) {
@@ -19,24 +19,23 @@ void idleClbk(IdleContext* context ) {
 		if (status == std::future_status::ready) {
 			auto msg = timeFuture.get();
 			std::cout << "main: " << msg << std::endl;
-			context->infoLabel->copy_label(msg.c_str());
+			context->window->setLabel(msg.c_str());
 			timeFuture = getTimeString();
 		}
 	}
 }
 
 int main(int argc, char**argv) {
-    Fl_Window* window = make_window();
+    auto* window = new MainWindow();
 		window->end();
 
-		//Fl::lock();
 		window->show(argc, argv);
 
 		bool isRun = true;
 
 		std::thread serverThread([&isRun]() { run_server(isRun); });
 		IdleContext idleCtx;
-		idleCtx.infoLabel = infoLabel;
+		idleCtx.window = window;
 		idleCtx.timeFuture = getTimeString();
 		Fl::add_idle(reinterpret_cast<Fl_Idle_Handler>(idleClbk), &idleCtx);
 		

@@ -1,4 +1,4 @@
-fltk_wrap_ui(MainUi main.fl)
+fltk_wrap_ui(MainUi main_window.fl)
 
 add_library(MainUi STATIC ${MainUi_FLTK_UI_SRCS})
 
