@@ -1,6 +1,6 @@
 add_subdirectory(ui)
 
-add_executable(tmp_logger main.cpp)
+add_executable(tmp_logger main.cpp HeatersTable.cpp SensorsTable.cpp)
 
 #add_dependencies(tmp_logger MainUi)
 #add_dependencies(tmp_logger udp_server)

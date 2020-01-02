@@ -3,13 +3,19 @@
 
 #include <thread>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <chrono>
+#include <map>
 
-struct IdleContext {
-	std::future<std::string> timeFuture;
-	MainWindow *window;
-};
+namespace {
+	struct IdleContext {
+		FutureType timeFuture;
+		MainWindow* window;
+	};
+
+	std::map<decltype(TempMsg::id), decltype(TempMsg::temp_cels)> sensIdToTemp;
+} // unnamed namespace
 
 void idleClbk(IdleContext* context ) {
 	auto& timeFuture = context->timeFuture;
@@ -18,8 +24,10 @@ void idleClbk(IdleContext* context ) {
 		auto status = timeFuture.wait_for(std::chrono::milliseconds(1));
 		if (status == std::future_status::ready) {
 			auto msg = timeFuture.get();
-			std::cout << "main: " << msg << std::endl;
-			context->window->setLabel(msg.c_str());
+			sensIdToTemp[msg.id] = msg.temp_cels;
+			std::stringstream ss;
+			ss << "id=" << msg.id << " t=" << msg.temp_cels << std::endl;
+			context->window->setLabel(ss.str().c_str());
 			timeFuture = getTimeString();
 		}
 	}

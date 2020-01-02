@@ -2,18 +2,62 @@
 version 1.0400
 header_name {.h}
 code_name {.cxx}
-decl {\#include <string>} {selected public global
+decl {\#include <string>} {public global
+}
+
+widget_class HeatersTable {open
+  xywh {108 132 119 100} type Double hide
+  code0 {init();}
+  class Fl_Table
+} {
+  Function {draw_cell(TableContext context, int ROW=0, int COL=0, int X=0, int Y=0, int W=0, int H=0) override} {open private
+  } {}
+  Function {DrawHeader(const char* s, int X, int Y, int W, int H)} {open private
+  } {}
+  Function {DrawData(const char* s, int X, int Y, int W, int H)} {open private
+  } {}
+  Function {init()} {open private
+  } {}
+}
+
+widget_class SensorsTable {open selected
+  xywh {133 156 119 100} type Double hide
+  code0 {init();}
+  class Fl_Table
+} {
+  Function {draw_cell(TableContext context, int ROW=0, int COL=0, int X=0, int Y=0, int W=0, int H=0) override} {open private
+  } {}
+  Function {DrawHeader(const char* s, int X, int Y, int W, int H)} {open private
+  } {}
+  Function {DrawData(const char* s, int X, int Y, int W, int H)} {open private
+  } {}
+  Function {init()} {open private
+  } {}
 }
 
 widget_class MainWindow {open
-  xywh {271 353 486 159} type Double resizable
-  class Fl_Double_Window visible
+  xywh {736 166 693 372} type Double hide resizable
+  class Fl_Double_Window
 } {
   Function {setLabel(const std::string &lbl)} {} {
     code {m_label->copy_label(lbl.c_str());} {}
   }
   Fl_Group m_label {
     label Temperature
-    private xywh {10 10 465 135} align 0 resizable
+    private xywh {10 10 670 30} align 0 resizable
   } {}
+  Fl_Tabs m_tabs {open
+    private xywh {10 60 675 305}
+  } {
+    Fl_Table m_sensorsTbl {
+      label Sensors open
+      private xywh {10 85 675 280}
+      class SensorsTable
+    } {}
+    Fl_Table m_heatersTbl {
+      label Heaters open
+      private xywh {10 85 675 280} hide
+      class HeatersTable
+    } {}
+  }
 }

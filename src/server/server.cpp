@@ -1,3 +1,5 @@
+#include "server.h"
+
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -16,7 +18,6 @@ namespace {
 	const auto PORT = 3333;
 	const auto RECV_BUFSIZE = 1024;
 
-	using PromiseType = std::promise<std::string>; 
 	std::queue<PromiseType> g_promices;
 	std::mutex g_mutex;
 } // private namespace
@@ -44,15 +45,21 @@ private:
 		{
 			if (!err && bytes_recvd > 0)
 			{
-				std::string msg(m_recv_buffer.begin(), m_recv_buffer.begin() + bytes_recvd);
-				std::cout << "received: " << msg << std::endl;
+				if (bytes_recvd == sizeof(TempMsg))
 				{
-					const std::lock_guard<std::mutex> lock(g_mutex);
-					if (!g_promices.empty())
+					TempMsg &msg = reinterpret_cast<TempMsg&>(m_recv_buffer.front());
+					std::cout << "received: id=" << msg.id << " t=" << msg.temp_cels << std::endl;
 					{
-						g_promices.front().set_value(msg);
-						g_promices.pop();
+						const std::lock_guard<std::mutex> lock(g_mutex);
+						if (!g_promices.empty())
+						{
+							g_promices.front().set_value(msg);
+							g_promices.pop();
+						}
 					}
+				}
+				else {
+					std::cout << "Received unknow: " << bytes_recvd << " bytes." << std::endl;
 				}
 				do_send(bytes_recvd);
 			}
@@ -99,7 +106,7 @@ void run_server( volatile bool& isRun )
 }
 
 
-std::future<std::string> getTimeString() {
+FutureType getTimeString() {
 	PromiseType promice;
 	auto future = promice.get_future();
 	{
